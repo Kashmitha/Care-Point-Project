@@ -3,38 +3,38 @@ using CarePoint.API.Models;
 
 namespace CarePoint.API.Data 
 {
-    // Main database context for CarePoint app
+    // Main database context for CarePoint application.
     public class ApplicationDbContext : DbContext
     {
-        public ApplicationDbContext(DbContextOptions options) : base(options)
+        // FIXED: Added generic type parameter
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
 
         // DbSets represent tables in database
-        public DbSet Users { get; set; }
-        public DbSet Specialties { get; set; }
-        public DbSet Doctors { get; set; }
-        public DbSet DoctorAvailabilities { get; set; }
-        public DbSet Appointments { get; set; }
-        public DbSet Prescriptions { get; set; }
-        public DbSet PrescriptionsMedications { get; set; }
-        public DbSet MedicalRecords { get; set; }
-        public DbSet Notofications { get; set; }
-        public DbSet Reviews { get; set; }
+        public DbSet<User> Users { get; set; } = null!;
+        public DbSet<Specialty> Specialties { get; set; } = null!;
+        public DbSet<Doctor> Doctors { get; set; } = null!;
+        public DbSet<DoctorAvailability> DoctorAvailabilities { get; set; } = null!;
+        public DbSet<Appointment> Appointments { get; set; } = null!;
+        public DbSet<Prescription> Prescriptions { get; set; } = null!;
+        public DbSet<PrescriptionMedication> PrescriptionMedications { get; set; } = null!;
+        public DbSet<MedicalRecord> MedicalRecords { get; set; } = null!;
+        public DbSet<Notification> Notifications { get; set; } = null!;
+        public DbSet<Review> Reviews { get; set; } = null!;
 
-        // Configure entity relationships and constraints
-        // This is where configure
-        // - Relationships ( 1.1, 1.m, n.m)
+        // Configure entity relationships and constraints.
+        // OnModelCreating is where you configure:
+        // - Relationships (one-to-one, one-to-many, many-to-many)
+        // - Indexes for query performance
         // - Unique constraints
         // - Default values
-        // - Indexes for query performance
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
             // User configurations
-            modelBuilder.Entity(entity => 
+            modelBuilder.Entity<User>(entity => 
             {
                 entity.HasIndex(e => e.Email).IsUnique();
                 entity.Property(e => e.Role).HasDefaultValue("Patient");
@@ -42,26 +42,26 @@ namespace CarePoint.API.Data
             });
 
             // Doctor configurations
-            modelBuilder.Entity(entity => 
+            modelBuilder.Entity<Doctor>(entity => 
             {
                 entity.HasIndex(e => e.LicenseNumber).IsUnique();
                 entity.HasOne(d => d.User)
                     .WithOne(u => u.Doctor)
-                    .HasForeignKey(d => d.UserId)
+                    .HasForeignKey<Doctor>(d => d.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
             // Specialty configurations
-            modelBuilder.Entity(entity => 
+            modelBuilder.Entity<Specialty>(entity => 
             {
                 entity.HasIndex(e => e.SpecialtyName).IsUnique();
             });
 
             // Appointment configurations
-            modelBuilder.Entity(entity => 
+            modelBuilder.Entity<Appointment>(entity => 
             {
                 entity.HasOne(a => a.Patient)
-                    .WithMany(u => u.AppointmentAsPatient)
+                    .WithMany(u => u.AppointmentsAsPatient)
                     .HasForeignKey(a => a.PatientId)
                     .OnDelete(DeleteBehavior.Restrict);
 
@@ -70,31 +70,32 @@ namespace CarePoint.API.Data
                     .HasForeignKey(a => a.DoctorId)
                     .OnDelete(DeleteBehavior.Restrict);
                 
-                entity.Property(a => a.Status).HasDefaultvalue("Scheduled");
+                entity.Property(a => a.Status).HasDefaultValue("Scheduled");
             });
 
             // Prescription configurations
-            modelBuilder.Entity(entity => 
+            modelBuilder.Entity<Prescription>(entity => 
             {
                 entity.HasOne(p => p.Appointment)
                     .WithOne(a => a.Prescription)
-                    .HasForeignKey(p => p.AppointmentId)
+                    .HasForeignKey<Prescription>(p => p.AppointmentId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
-            // Seed initial data (good for testing) 
+            // Seed initial data (optional but recommended for testing)
             SeedData(modelBuilder);
         }
 
-        // Seed initial data for testing
+        
+        // Seed initial data for testing.
+        // What for data seeding:
         // - Initial admin accounts
         // - Reference data (specialties)
-        // - Test data for development
-
+        // - Test data in development
         private void SeedData(ModelBuilder modelBuilder)
         {
-            // Seed specialties
-            modelBuilder.Entity().HasData(
+            // Seed Specialties
+            modelBuilder.Entity<Specialty>().HasData(
                 new Specialty { SpecialtyId = 1, SpecialtyName = "Cardiology", Description = "Heart and cardiovascular system", CreatedAt = DateTime.UtcNow },
                 new Specialty { SpecialtyId = 2, SpecialtyName = "Neurology", Description = "Brain and nervous system", CreatedAt = DateTime.UtcNow },
                 new Specialty { SpecialtyId = 3, SpecialtyName = "Pediatrics", Description = "Children's health", CreatedAt = DateTime.UtcNow },
@@ -104,7 +105,7 @@ namespace CarePoint.API.Data
 
             // Seed Admin User (Password: Admin@123)
             string adminPasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123");
-            modelBuilder.Entity.Entity().HasData(
+            modelBuilder.Entity<User>().HasData(
                 new User
                 {
                     UserId = 1,
