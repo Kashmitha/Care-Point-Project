@@ -3,8 +3,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CarePoint.API.Models
 {
-    // Appointment entity manages booking between patients and doctors.
-    
     public class Appointment : BaseEntity
     {
         [Key]
@@ -30,7 +28,7 @@ namespace CarePoint.API.Models
 
         [Required]
         [MaxLength(20)]
-        public string Status { get; set; } = "Scheduled"; // Scheduled, Completed, Cancelled, NoShow
+        public string Status { get; set; } = "Scheduled";
 
         public string? ReasonForVisit { get; set; }
 
@@ -40,8 +38,8 @@ namespace CarePoint.API.Models
 
         public string? CancellationReason { get; set; }
 
-        // Nav props
+        // Navigation properties
         public Prescription? Prescription { get; set; }
-        public ICollection MedicalRecords { get; set; } = new List();
+        public ICollection<MedicalRecord> MedicalRecords { get; set; } = new List<MedicalRecord>();
     }
 }

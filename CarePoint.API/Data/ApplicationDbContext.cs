@@ -3,15 +3,12 @@ using CarePoint.API.Models;
 
 namespace CarePoint.API.Data 
 {
-    // Main database context for CarePoint application.
     public class ApplicationDbContext : DbContext
     {
-        // FIXED: Added generic type parameter
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
 
-        // DbSets represent tables in database
         public DbSet<User> Users { get; set; } = null!;
         public DbSet<Specialty> Specialties { get; set; } = null!;
         public DbSet<Doctor> Doctors { get; set; } = null!;
@@ -23,12 +20,11 @@ namespace CarePoint.API.Data
         public DbSet<Notification> Notifications { get; set; } = null!;
         public DbSet<Review> Reviews { get; set; } = null!;
 
-        // Configure entity relationships and constraints.
-        // OnModelCreating is where you configure:
-        // - Relationships (one-to-one, one-to-many, many-to-many)
-        // - Indexes for query performance
-        // - Unique constraints
-        // - Default values
+        /// <summary>
+        /// Configure entity relationships and constraints.
+        /// SQL Server doesn't allow multiple cascade paths.
+        /// We use Restrict on some relationships to prevent cascade cycles.
+        /// </summary>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -45,10 +41,18 @@ namespace CarePoint.API.Data
             modelBuilder.Entity<Doctor>(entity => 
             {
                 entity.HasIndex(e => e.LicenseNumber).IsUnique();
+                
+                // One-to-One: User -> Doctor (Cascade delete is OK here)
                 entity.HasOne(d => d.User)
                     .WithOne(u => u.Doctor)
                     .HasForeignKey<Doctor>(d => d.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
+
+                // Many-to-One: Doctor -> Specialty (Restrict - don't delete doctors when specialty is deleted)
+                entity.HasOne(d => d.Specialty)
+                    .WithMany(s => s.Doctors)
+                    .HasForeignKey(d => d.SpecialtyId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             // Specialty configurations
@@ -60,11 +64,13 @@ namespace CarePoint.API.Data
             // Appointment configurations
             modelBuilder.Entity<Appointment>(entity => 
             {
+                // Many-to-One: Appointment -> Patient (Restrict to prevent cascade)
                 entity.HasOne(a => a.Patient)
                     .WithMany(u => u.AppointmentsAsPatient)
                     .HasForeignKey(a => a.PatientId)
                     .OnDelete(DeleteBehavior.Restrict);
 
+                // Many-to-One: Appointment -> Doctor (Restrict to prevent cascade)
                 entity.HasOne(a => a.Doctor)
                     .WithMany(d => d.Appointments)
                     .HasForeignKey(a => a.DoctorId)
@@ -76,48 +82,106 @@ namespace CarePoint.API.Data
             // Prescription configurations
             modelBuilder.Entity<Prescription>(entity => 
             {
+                // One-to-One: Appointment -> Prescription (Cascade is OK)
                 entity.HasOne(p => p.Appointment)
                     .WithOne(a => a.Prescription)
                     .HasForeignKey<Prescription>(p => p.AppointmentId)
                     .OnDelete(DeleteBehavior.Cascade);
+
+                // Many-to-One: Prescription -> Patient (Restrict - FIXES CASCADE CYCLE)
+                entity.HasOne(p => p.Patient)
+                    .WithMany()
+                    .HasForeignKey(p => p.PatientId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // Many-to-One: Prescription -> Doctor (Restrict - FIXES CASCADE CYCLE)
+                entity.HasOne(p => p.Doctor)
+                    .WithMany(d => d.Prescriptions)
+                    .HasForeignKey(p => p.DoctorId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // Seed initial data (optional but recommended for testing)
-            SeedData(modelBuilder);
-        }
+            // PrescriptionMedication configurations
+            modelBuilder.Entity<PrescriptionMedication>(entity =>
+            {
+                // Many-to-One: PrescriptionMedication -> Prescription (Cascade is OK)
+                entity.HasOne(pm => pm.Prescription)
+                    .WithMany(p => p.Medications)
+                    .HasForeignKey(pm => pm.PrescriptionId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
 
-        
-        // Seed initial data for testing.
-        // What for data seeding:
-        // - Initial admin accounts
-        // - Reference data (specialties)
-        // - Test data in development
-        private void SeedData(ModelBuilder modelBuilder)
-        {
-            // Seed Specialties
-            modelBuilder.Entity<Specialty>().HasData(
-                new Specialty { SpecialtyId = 1, SpecialtyName = "Cardiology", Description = "Heart and cardiovascular system", CreatedAt = DateTime.UtcNow },
-                new Specialty { SpecialtyId = 2, SpecialtyName = "Neurology", Description = "Brain and nervous system", CreatedAt = DateTime.UtcNow },
-                new Specialty { SpecialtyId = 3, SpecialtyName = "Pediatrics", Description = "Children's health", CreatedAt = DateTime.UtcNow },
-                new Specialty { SpecialtyId = 4, SpecialtyName = "Orthopedics", Description = "Bones, joints, and muscles", CreatedAt = DateTime.UtcNow },
-                new Specialty { SpecialtyId = 5, SpecialtyName = "Dermatology", Description = "Skin, hair, and nails", CreatedAt = DateTime.UtcNow }
-            );
+            // MedicalRecord configurations
+            modelBuilder.Entity<MedicalRecord>(entity =>
+            {
+                // Many-to-One: MedicalRecord -> Patient (Restrict)
+                entity.HasOne(mr => mr.Patient)
+                    .WithMany()
+                    .HasForeignKey(mr => mr.PatientId)
+                    .OnDelete(DeleteBehavior.Restrict);
 
-            // Seed Admin User (Password: Admin@123)
-            string adminPasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123");
-            modelBuilder.Entity<User>().HasData(
-                new User
-                {
-                    UserId = 1,
-                    Email = "admin@carepoint.com",
-                    PasswordHash = adminPasswordHash,
-                    FirstName = "System",
-                    LastName = "Administrator",
-                    Role = "Admin",
-                    IsActive = true,
-                    CreatedAt = DateTime.UtcNow
-                }
-            );
+                // Many-to-One: MedicalRecord -> Doctor (Restrict)
+                entity.HasOne(mr => mr.Doctor)
+                    .WithMany()
+                    .HasForeignKey(mr => mr.DoctorId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // Many-to-One: MedicalRecord -> Appointment (Restrict)
+                entity.HasOne(mr => mr.Appointment)
+                    .WithMany(a => a.MedicalRecords)
+                    .HasForeignKey(mr => mr.AppointmentId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Notification configurations
+            modelBuilder.Entity<Notification>(entity =>
+            {
+                // Many-to-One: Notification -> User (Cascade is OK)
+                entity.HasOne(n => n.User)
+                    .WithMany(u => u.Notifications)
+                    .HasForeignKey(n => n.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                // Many-to-One: Notification -> Appointment (Restrict)
+                entity.HasOne(n => n.RelatedAppointment)
+                    .WithMany()
+                    .HasForeignKey(n => n.RelatedAppointmentId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Review configurations
+            modelBuilder.Entity<Review>(entity =>
+            {
+                // Many-to-One: Review -> Doctor (Restrict)
+                entity.HasOne(r => r.Doctor)
+                    .WithMany(d => d.Reviews)
+                    .HasForeignKey(r => r.DoctorId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // Many-to-One: Review -> Patient (Restrict)
+                entity.HasOne(r => r.Patient)
+                    .WithMany()
+                    .HasForeignKey(r => r.PatientId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // Many-to-One: Review -> Appointment (Restrict)
+                entity.HasOne(r => r.Appointment)
+                    .WithMany()
+                    .HasForeignKey(r => r.AppointmentId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // DoctorAvailability configurations
+            modelBuilder.Entity<DoctorAvailability>(entity =>
+            {
+                // Many-to-One: DoctorAvailability -> Doctor (Cascade is OK)
+                entity.HasOne(da => da.Doctor)
+                    .WithMany(d => d.Availabilities)
+                    .HasForeignKey(da => da.DoctorId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // NO SEEDING HERE - Keep migrations clean
         }
     }
 }

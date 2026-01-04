@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace CarePoint.API.Models 
+namespace CarePoint.API.Models
 {
-    public class Specialty : BaseEntity 
+    public class Specialty : BaseEntity
     {
         [Key]
         public int SpecialtyId { get; set; }
@@ -13,7 +13,7 @@ namespace CarePoint.API.Models
 
         public string? Description { get; set; }
 
-        // Navigation prop
-        public ICollection Doctors { get; set; } = new List();
+        // Navigation property
+        public ICollection<Doctor> Doctors { get; set; } = new List<Doctor>();
     }
 }

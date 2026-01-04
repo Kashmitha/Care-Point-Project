@@ -10,24 +10,23 @@ using CarePoint.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add DB context with SQL Server
+// Add DbContext with SQL Server
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Configure JWT settings
+// Configure JWT Settings
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
-// Register application service
+// Register application services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 
-// Add authentication with JWT
+// Add Authentication with JWT
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
 
-// Null check - importing to prevent runtime errors
-if(jwtSettings == null || string.IsNullOrEmpty(jwtSettings.SecretKey))
+if (jwtSettings == null || string.IsNullOrEmpty(jwtSettings.SecretKey))
 {
     throw new InvalidOperationException("JWT settings are not configured properly in appsettings.json");
 }
@@ -44,54 +43,49 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuer = true,
         ValidateAudience = true,
         ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
         ValidIssuer = jwtSettings.Issuer,
         ValidAudience = jwtSettings.Audience,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
-        ClockSkew = TimeSpan.Zero // Remove default 5 minute clock skew
+        ClockSkew = TimeSpan.Zero
     };
 });
 
-// Add authorization
 builder.Services.AddAuthorization();
 
-// Add CORS
-var corsOrigin = builder.Configuration.GetSection("CorsSettings:AllowedOrigins").Get<string[]>();
+var corsOrigins = builder.Configuration.GetSection("CorsSettings:AllowedOrigins").Get<string[]>();
 
-// Null check for CORS origins
-if(corsOrigin == null || corsOrigin.Length == 0)
+if (corsOrigins == null || corsOrigins.Length == 0)
 {
-    corsOrigin = new[] { "http://localhost:5173", "http://localhost:3000" };
+    corsOrigins = new[] { "http://localhost:5173", "http://localhost:3000" };
 }
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins(corsOrigin)
-            .AllowAnyMethod();
-            .AllowAnyHeader();
-            .AllowCredentials();
+        policy.WithOrigins(corsOrigins)
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
     });
 });
 
-// Add controllers
-builder.Services.AddController();
+builder.Services.AddControllers();
 
-// Configure Swagger for API documentation
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c => 
+builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo)
-    {
-        Title = "CarePoint API",
+    c.SwaggerDoc("v1", new OpenApiInfo 
+    { 
+        Title = "CarePoint API", 
         Version = "v1",
         Description = "Healthcare Management System API"
-    };
+    });
 
-    // Add JWT authentication to swagger
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your taken",
+        Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token",
         Name = "Authorization",
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.ApiKey,
@@ -116,28 +110,40 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// Middleware pipeline
-// Order matters. 
-// Configure the HTTP request pipeline
-if(app.Environment.IsDevelopment())
+// ===== 🔥 IMPORTANT: SEED DATABASE AT STARTUP =====
+// This section should be in your Program.cs
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        
+        // Seed the database
+        await DbSeeder.SeedAsync(context, logger);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while seeding the database");
+    }
+}
+// ===== END SEEDING =====
+
+if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggeUI();
+    app.UseSwaggerUI();
 }
 
-app.HttpRedirection();
+app.UseHttpsRedirection();
 
-// CORS must come before Authentication/Authorization
 app.UseCors("AllowFrontend");
 
-// Authentication must come before UseAuthorization
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
 app.Run();
-
-
-
-

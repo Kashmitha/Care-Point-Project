@@ -16,7 +16,7 @@ namespace CarePoint.API.Models
 
         [Required]
         [MaxLength(50)]
-        public string Type { get; set; } = string.Empty; // Reminder, Confirmation, etc...
+        public string Type { get; set; } = string.Empty;
 
         [Required]
         [MaxLength(255)]

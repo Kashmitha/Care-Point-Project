@@ -10,9 +10,9 @@ namespace CarePoint.API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
-        private readonly ILogger _logger;
+        private readonly ILogger<AuthController> _logger;
 
-        public AuthController(IAuthService authService, ILogger logger)
+        public AuthController(IAuthService authService, ILogger<AuthController> logger)
         {
             _authService = authService;
             _logger = logger;
@@ -56,7 +56,7 @@ namespace CarePoint.API.Controllers
         [HttpGet("check-email")]
         public async Task<ActionResult> CheckEmail([FromQuery] string email)
         {
-            var exists = await _authService.EmaiExistsAsync(email);
+            var exists = await _authService.EmailExistsAsync(email);
             return Ok(new { exists });
         }
     }

@@ -30,7 +30,7 @@ namespace CarePoint.API.Models
 
         public string? Instructions { get; set; }
 
-        // Nav prop
-        public ICollection Medications { get; set; } = new List();
+        // Navigation property
+        public ICollection<PrescriptionMedication> Medications { get; set; } = new List<PrescriptionMedication>();
     }
 }

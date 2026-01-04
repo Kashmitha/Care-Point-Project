@@ -1,9 +1,7 @@
-
 using System.ComponentModel.DataAnnotations;
 
 namespace CarePoint.API.Models
 {
-    // User entiy representing all system users (Patients, Doctors, Admins).
     public class User : BaseEntity
     {
         [Key]
@@ -47,13 +45,13 @@ namespace CarePoint.API.Models
 
         [Required]
         [MaxLength(20)]
-        public string Role { get; set; } = "Patient"; // Patient, Doctor, Admin
+        public string Role { get; set; } = "Patient";
 
         public bool IsActive { get; set; } = true;
 
         // Navigation properties
         public Doctor? Doctor { get; set; }
-        public ICollection AppointmentsAsPatient { get; set; } = new List();
-        public ICollection Notifications { get; set; } = new List();
+        public ICollection<Appointment> AppointmentsAsPatient { get; set; } = new List<Appointment>();
+        public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
     }
 }

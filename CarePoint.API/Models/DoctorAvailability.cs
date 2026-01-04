@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace CarePoint.API.Models 
+namespace CarePoint.API.Models
 {
     public class DoctorAvailability : BaseEntity
     {
@@ -15,7 +15,7 @@ namespace CarePoint.API.Models
         public Doctor Doctor { get; set; } = null!;
 
         [Required]
-        public string DayOfWeek { get; set; } // 0=Sunday, 6=Saturday
+        public int DayOfWeek { get; set; } // 0=Sunday, 6=Saturday
 
         [Required]
         public TimeSpan StartTime { get; set; }

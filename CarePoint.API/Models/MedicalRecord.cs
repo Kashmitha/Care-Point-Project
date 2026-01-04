@@ -26,7 +26,7 @@ namespace CarePoint.API.Models
 
         [Required]
         [MaxLength(50)]
-        public string RecordType { get; set; } = string.Empty; // LabReport, Imaging, Document, Other
+        public string RecordType { get; set; } = string.Empty;
 
         [Required]
         [MaxLength(255)]

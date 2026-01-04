@@ -13,6 +13,6 @@ namespace CarePoint.API.Configuration
         public string Audience { get; set; } = string.Empty;
 
         // Token expiration time in minutes.
-        public int ExpiryMinutes { get; set; }
+        public int ExpiryInMinutes { get; set; }
     }
 }

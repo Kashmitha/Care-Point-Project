@@ -12,12 +12,12 @@ namespace CarePoint.API.Models
         public int UserId { get; set; }
 
         [ForeignKey(nameof(UserId))]
-        public User User { get; set; } = null!; // Explicit relationship
+        public User User { get; set; } = null!;
 
         public int? SpecialtyId { get; set; }
 
         [ForeignKey(nameof(SpecialtyId))]
-        public Specialty? Specialty { get; set; } // Explicit relationship
+        public Specialty? Specialty { get; set; }
 
         [Required]
         [MaxLength(50)]
@@ -39,10 +39,10 @@ namespace CarePoint.API.Models
 
         public DateTime? ApprovedAt { get; set; }
 
-        // Nav props
-        public ICollection Availabilities { get; set; } = new List();
-        public ICollection Appointments { get; set; } = new List();
-        public ICollection Prescriptions { get; set; } = new List();
-        public ICollection Reviews { get; set; } = new List();
+        // Navigation properties
+        public ICollection<DoctorAvailability> Availabilities { get; set; } = new List<DoctorAvailability>();
+        public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
+        public ICollection<Prescription> Prescriptions { get; set; } = new List<Prescription>();
+        public ICollection<Review> Reviews { get; set; } = new List<Review>();
     }
 }
