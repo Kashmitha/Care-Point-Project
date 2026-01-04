@@ -20,7 +20,7 @@ namespace CarePoint.API.Migrations
                     SpecialtyName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -47,7 +47,7 @@ namespace CarePoint.API.Migrations
                     Role = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false, defaultValue: "Patient"),
                     IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -71,7 +71,7 @@ namespace CarePoint.API.Migrations
                     ApprovedBy = table.Column<int>(type: "int", nullable: true),
                     ApprovedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -80,7 +80,8 @@ namespace CarePoint.API.Migrations
                         name: "FK_Doctors_Specialties_SpecialtyId",
                         column: x => x.SpecialtyId,
                         principalTable: "Specialties",
-                        principalColumn: "SpecialtyId");
+                        principalColumn: "SpecialtyId",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Doctors_Users_UserId",
                         column: x => x.UserId,
@@ -105,7 +106,7 @@ namespace CarePoint.API.Migrations
                     CancelledBy = table.Column<int>(type: "int", nullable: true),
                     CancellationReason = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -136,7 +137,7 @@ namespace CarePoint.API.Migrations
                     EndTime = table.Column<TimeSpan>(type: "time", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -165,7 +166,7 @@ namespace CarePoint.API.Migrations
                     UploadedBy = table.Column<int>(type: "int", nullable: false),
                     UploadedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -174,18 +175,20 @@ namespace CarePoint.API.Migrations
                         name: "FK_MedicalRecords_Appointments_AppointmentId",
                         column: x => x.AppointmentId,
                         principalTable: "Appointments",
-                        principalColumn: "AppointmentId");
+                        principalColumn: "AppointmentId",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_MedicalRecords_Doctors_DoctorId",
                         column: x => x.DoctorId,
                         principalTable: "Doctors",
-                        principalColumn: "DoctorId");
+                        principalColumn: "DoctorId",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_MedicalRecords_Users_PatientId",
                         column: x => x.PatientId,
                         principalTable: "Users",
                         principalColumn: "UserId",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -201,7 +204,7 @@ namespace CarePoint.API.Migrations
                     IsRead = table.Column<bool>(type: "bit", nullable: false),
                     RelatedAppointmentId = table.Column<int>(type: "int", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -210,7 +213,8 @@ namespace CarePoint.API.Migrations
                         name: "FK_Notifications_Appointments_RelatedAppointmentId",
                         column: x => x.RelatedAppointmentId,
                         principalTable: "Appointments",
-                        principalColumn: "AppointmentId");
+                        principalColumn: "AppointmentId",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Notifications_Users_UserId",
                         column: x => x.UserId,
@@ -231,7 +235,7 @@ namespace CarePoint.API.Migrations
                     Diagnosis = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Instructions = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -247,13 +251,13 @@ namespace CarePoint.API.Migrations
                         column: x => x.DoctorId,
                         principalTable: "Doctors",
                         principalColumn: "DoctorId",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Prescriptions_Users_PatientId",
                         column: x => x.PatientId,
                         principalTable: "Users",
                         principalColumn: "UserId",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -268,7 +272,7 @@ namespace CarePoint.API.Migrations
                     Rating = table.Column<int>(type: "int", nullable: false),
                     Comment = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -277,19 +281,20 @@ namespace CarePoint.API.Migrations
                         name: "FK_Reviews_Appointments_AppointmentId",
                         column: x => x.AppointmentId,
                         principalTable: "Appointments",
-                        principalColumn: "AppointmentId");
+                        principalColumn: "AppointmentId",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Reviews_Doctors_DoctorId",
                         column: x => x.DoctorId,
                         principalTable: "Doctors",
                         principalColumn: "DoctorId",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Reviews_Users_PatientId",
                         column: x => x.PatientId,
                         principalTable: "Users",
                         principalColumn: "UserId",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(

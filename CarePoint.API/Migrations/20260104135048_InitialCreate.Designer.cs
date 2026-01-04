@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CarePoint.API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260104132709_InitialCreate")]
+    [Migration("20260104135048_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -67,7 +67,7 @@ namespace CarePoint.API.Migrations
                         .HasColumnType("nvarchar(20)")
                         .HasDefaultValue("Scheduled");
 
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("AppointmentId");
@@ -117,7 +117,7 @@ namespace CarePoint.API.Migrations
                     b.Property<int?>("SpecialtyId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("UserId")
@@ -165,7 +165,7 @@ namespace CarePoint.API.Migrations
                     b.Property<TimeSpan>("StartTime")
                         .HasColumnType("time");
 
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("AvailabilityId");
@@ -212,7 +212,7 @@ namespace CarePoint.API.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("UploadedAt")
@@ -263,7 +263,7 @@ namespace CarePoint.API.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("UserId")
@@ -304,7 +304,7 @@ namespace CarePoint.API.Migrations
                     b.Property<int>("PatientId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("PrescriptionId");
@@ -383,7 +383,7 @@ namespace CarePoint.API.Migrations
                     b.Property<int>("Rating")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("ReviewId");
@@ -416,7 +416,7 @@ namespace CarePoint.API.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("SpecialtyId");
@@ -492,7 +492,7 @@ namespace CarePoint.API.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ZipCode")
@@ -530,7 +530,8 @@ namespace CarePoint.API.Migrations
                 {
                     b.HasOne("CarePoint.API.Models.Specialty", "Specialty")
                         .WithMany("Doctors")
-                        .HasForeignKey("SpecialtyId");
+                        .HasForeignKey("SpecialtyId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("CarePoint.API.Models.User", "User")
                         .WithOne("Doctor")
@@ -558,16 +559,18 @@ namespace CarePoint.API.Migrations
                 {
                     b.HasOne("CarePoint.API.Models.Appointment", "Appointment")
                         .WithMany("MedicalRecords")
-                        .HasForeignKey("AppointmentId");
+                        .HasForeignKey("AppointmentId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("CarePoint.API.Models.Doctor", "Doctor")
                         .WithMany()
-                        .HasForeignKey("DoctorId");
+                        .HasForeignKey("DoctorId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("CarePoint.API.Models.User", "Patient")
                         .WithMany()
                         .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Appointment");
@@ -581,7 +584,8 @@ namespace CarePoint.API.Migrations
                 {
                     b.HasOne("CarePoint.API.Models.Appointment", "RelatedAppointment")
                         .WithMany()
-                        .HasForeignKey("RelatedAppointmentId");
+                        .HasForeignKey("RelatedAppointmentId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("CarePoint.API.Models.User", "User")
                         .WithMany("Notifications")
@@ -605,13 +609,13 @@ namespace CarePoint.API.Migrations
                     b.HasOne("CarePoint.API.Models.Doctor", "Doctor")
                         .WithMany("Prescriptions")
                         .HasForeignKey("DoctorId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("CarePoint.API.Models.User", "Patient")
                         .WithMany()
                         .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Appointment");
@@ -636,18 +640,19 @@ namespace CarePoint.API.Migrations
                 {
                     b.HasOne("CarePoint.API.Models.Appointment", "Appointment")
                         .WithMany()
-                        .HasForeignKey("AppointmentId");
+                        .HasForeignKey("AppointmentId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("CarePoint.API.Models.Doctor", "Doctor")
                         .WithMany("Reviews")
                         .HasForeignKey("DoctorId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("CarePoint.API.Models.User", "Patient")
                         .WithMany()
                         .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Appointment");
