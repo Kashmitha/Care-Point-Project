@@ -87,7 +87,7 @@ namespace CarePoint.API.Services
                 throw new UnauthorizedAccessException("Invalid email or password");
 
             if (!BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash))
-                throw new UnauthorizedAccessException("Invalid email or passowrd");
+                throw new UnauthorizedAccessException("Invalid email or password");
 
             if (!user.IsActive)
                 throw new UnauthorizedAccessException("Account is inactive");

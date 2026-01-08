@@ -1,8 +1,8 @@
-using System.ComponentModel.Annotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace CarePoint.API.DTOs.Appointment
 {
-    public class UpddateAppointmentDto
+    public class UpdateAppointmentDto
     {
         [Required]
         public DateTime AppointmentDate { get; set; }

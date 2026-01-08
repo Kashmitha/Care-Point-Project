@@ -10,9 +10,9 @@ namespace CarePoint.API.DTOs.Prescription
         public string PatientName { get; set; } = string.Empty;
         public int DoctorId { get; set; }
         public string DoctorName { get; set; } = string.Empty;
-        public string? Diagnosis { get; set; } 
+        public string? Diagnosis { get; set; }
         public string? Instructions { get; set; }
-        public DateTime CreatedAt { get; set; } 
+        public DateTime CreatedAt { get; set; }
         public List<MedicationDto> Medications { get; set; } = new List<MedicationDto>();
     }
 
@@ -39,7 +39,7 @@ namespace CarePoint.API.DTOs.Prescription
 
         [Required]
         [MinLength(1, ErrorMessage = "At least one medication is required")]
-        public List<CreateMedicationDto> Meications { get; set; } = new List<CreateMedicationDto>(); 
+        public List<CreateMedicationDto> Medications { get; set; } = new List<CreateMedicationDto>();
     }
 
     public class CreateMedicationDto
