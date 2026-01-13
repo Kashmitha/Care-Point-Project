@@ -136,7 +136,7 @@ namespace CarePoint.API.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error approving doctor: d{doctorId}");
+                _logger.LogError(ex, $"Error approving doctor: {doctorId}");
                 throw;
             }
         }
