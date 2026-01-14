@@ -7,6 +7,7 @@ using CarePoint.API.Configuration;
 using CarePoint.API.Data;
 using CarePoint.API.Interfaces;
 using CarePoint.API.Services;
+using CarePoint.API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,9 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IDoctorService, DoctorService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+builder.Services.AddScoped<IPrescriptionService, PrescriptionService>();
 
 // Add Authentication with JWT
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
@@ -77,9 +81,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo 
-    { 
-        Title = "CarePoint API", 
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "CarePoint API",
         Version = "v1",
         Description = "Healthcare Management System API"
     });
@@ -111,7 +115,11 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// ===== 🔥 IMPORTANT: SEED DATABASE AT STARTUP =====
+// Add custom middlewares
+app.UseExceptionHandling();
+app.UseRequestLogging();
+
+// ===== SEED DATABASE AT STARTUP =====
 // This section should be in your Program.cs
 using (var scope = app.Services.CreateScope())
 {
@@ -120,7 +128,7 @@ using (var scope = app.Services.CreateScope())
     {
         var context = services.GetRequiredService<ApplicationDbContext>();
         var logger = services.GetRequiredService<ILogger<Program>>();
-        
+
         // Seed the database
         await DbSeeder.SeedAsync(context, logger);
     }
