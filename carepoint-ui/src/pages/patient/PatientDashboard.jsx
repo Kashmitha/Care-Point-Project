@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import appointmentService from '../../services/appointmentService';
-import { Calandar, Clock, FileText } from 'lucide-react';
+import { Calendar, Clock, FileText } from 'lucide-react';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { format } from 'date-fns';
 import { toast } from "react-toastify";

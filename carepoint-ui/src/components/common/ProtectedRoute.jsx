@@ -8,11 +8,11 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
     const { user, isAuthenticated } = useAuth();
 
     if(!isAuthenticated){
-        return ;
+        return <Navigate to="/login" replace />;
     }
 
     if(allowedRoles && !allowedRoles.includes(user.role)) {
-        return ;
+        return <Navigate to="/unauthorized" replace />;
     }
 
     return children;

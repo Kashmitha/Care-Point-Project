@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Calender, Users, FileText, Shield } from 'lucide-react';
+import { Calendar, Users, FileText, Shield } from 'lucide-react';
 
 const HomePage = () => {
     const features = [

@@ -31,7 +31,7 @@ api.interceptors.request.use(
  * Response interceptor to handle global errors
  * Centralized error handling reduces redundancy and improves maintainability
  */
-api.interceptors.response.Use(
+api.interceptors.response.use(
     (response) => response,
     (error) => {
         // Handle 401 Unauthorized errors globally
