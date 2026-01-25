@@ -56,6 +56,15 @@ function App() {
                 }
               />
 
+              <Route 
+                path="/doctor/schedule" 
+                element={
+                  <ProtectedRoute allowedRoles={['Doctor']}>
+                    <ManageSchedulePage />
+                  </ProtectedRoute>
+                } 
+              />
+
               {/* Admin Routes */}
               <Route 
                 path="/admin/dashboard"

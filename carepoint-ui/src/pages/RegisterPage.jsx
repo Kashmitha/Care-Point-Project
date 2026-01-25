@@ -18,6 +18,10 @@ const registerSchema = z.object ({
     phoneNumber: z.string().optional(),
     dateOfBirth: z.string().optional(),
     gender: z.string().optional(),
+    address: z.string().optional(),
+    city: z.string().optional(),
+    state: z.string().optional(),
+    zipCode: z.string().optional(),    
     role: z.enum(['Patient', 'Doctor']),
     licenseNumber: z.string().optional(),
     specialtyId: z.string().optional(),
@@ -151,11 +155,13 @@ const RegisterPage = () => {
                     label="Phone Number"
                     type="tel"
                     placeholder="+1 (555) 123-4567"
+                    error={errors.phoneNumber?.message}
                 />
                 <Input
                     {...register('dateOfBirth')}
                     label="Date of Birth"
                     type="date"
+                    error={errors.dateOfBirth?.message}
                 />
                 </div>
 
@@ -163,7 +169,36 @@ const RegisterPage = () => {
                 {...register('gender')}
                 label="Gender"
                 options={genderOptions}
+                error={errors.gender?.message}
                 />
+
+                <Input
+                    {...register('address')}
+                    label="Address"
+                    placeholder="123 Main Street"
+                    error={errors.address?.message}
+                />
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Input
+                    {...register('city')}
+                    label="City"
+                    placeholder="New York"
+                    error={errors.city?.message}
+                />
+                <Input
+                    {...register('state')}
+                    label="State"
+                    placeholder="NY"
+                    error={errors.state?.message}
+                />
+                <Input
+                    {...register('zipCode')}
+                    label="ZIP Code"
+                    placeholder="10001"
+                    error={errors.zipCode?.message}
+                />
+                </div>
 
                 {/* Doctor-Specific Fields */}
                 {watchRole === 'Doctor' && (
