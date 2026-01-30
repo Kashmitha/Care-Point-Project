@@ -13,6 +13,7 @@ import RegisterPage from './pages/RegisterPage';
 import PatientDashboard from './pages/patient/PatientDashboard';
 import BookAppointmentPage from './pages/patient/BookAppointmentPage';
 import DoctorDashboard from './pages/doctor/DoctorDashboard';
+import ManageSchedulePage from './pages/doctor/ManageSchedulePage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ManageDoctors from './pages/admin/ManageDoctors';
 

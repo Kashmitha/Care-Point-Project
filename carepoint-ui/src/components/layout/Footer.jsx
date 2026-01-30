@@ -22,7 +22,7 @@ const Footer = () => {
                     </div>
                     </div>
                     <div className="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-gray-400">
-                    © 2024 CarePoint. All rights reserved.
+                    © 2026 CarePoint. All rights reserved.
                 </div>
             </div>
         </footer>
