@@ -10,10 +10,21 @@ import Footer from './components/layout/Footer';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+
+// Patient pages
 import PatientDashboard from './pages/patient/PatientDashboard';
 import BookAppointmentPage from './pages/patient/BookAppointmentPage';
+import PatientAppointments from './pages/patient/AppointmentsPage.jsx'
+import PrescriptionsPage from './pages/patient/PrescriptionsPage.jsx'
+
+// Doctor pages
 import DoctorDashboard from './pages/doctor/DoctorDashboard';
+import DoctorAppointments from './pages/doctor/DoctorAppointments.jsx';
+import DoctorSchedule from './pages/doctor/DoctorSchedule.jsx';
+import CreatePrescription from './pages/doctor/CreatePrescription.jsx';
 import ManageSchedulePage from './pages/doctor/ManageSchedulePage';
+
+// Admin pages
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ManageDoctors from './pages/admin/ManageDoctors';
 
@@ -46,6 +57,22 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/patient/appointments"
+                element={
+                  <ProtectedRoute allowedRoles={['Patient']}>
+                    <PatientAppointments />
+                  </ProtectedRoute>
+                }
+              />
+              <Route 
+                path="/patient/prescriptions"
+                element={
+                  <ProtectedRoute allowedRoles={['Patient']}>
+                    <PrescriptionsPage />
+                  </ProtectedRoute>
+                }
+              />
 
               {/* Doctor Routes */}
               <Route 
@@ -56,14 +83,30 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/doctor/appointments"
+                element={
+                  <ProtectedRoute allowedRoles={['Doctor']}>
+                    <DoctorAppointments />
+                  </ProtectedRoute>
+                }
+              />
 
               <Route 
                 path="/doctor/schedule" 
                 element={
                   <ProtectedRoute allowedRoles={['Doctor']}>
-                    <ManageSchedulePage />
+                    <DoctorSchedule />
                   </ProtectedRoute>
                 } 
+              />
+              <Route
+                path="/doctor/prescription/:appointmentId"
+                element={
+                  <ProtectedRoute allowedRoles={['Doctor']}>
+                    <CreatePrescription />
+                  </ProtectedRoute>
+                }
               />
 
               {/* Admin Routes */}
@@ -109,6 +152,9 @@ function App() {
           hideProgressBar={false}
           newestOnTop
           closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
           pauseOnHover
           theme="light"
         />
